@@ -12,7 +12,7 @@ DWORD WINAPI threadBody(LPVOID params);
 
 int main(int argc, char** argv) {
 	HANDLE mutex = CreateMutex(NULL, FALSE, NULL);
-	stack<HANDLE> childs;
+	stack<HANDLE> threads;
 
 	char input;
 	bool isExit = false;
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 		{
 			HANDLE thread = createThread(mutex);
 			if (thread != NULL) {
-				childs.push(thread);
+				threads.push(thread);
 			} else {
 				if (WaitForSingleObject(mutex, INFINITE) == WAIT_OBJECT_0) {
 					cout << "Cannot create thread" << endl;
@@ -34,9 +34,9 @@ int main(int argc, char** argv) {
 			break;
 		case '-':
 			if (WaitForSingleObject(mutex, INFINITE) == WAIT_OBJECT_0) {
-				if (!childs.empty()) {
-					stopThread(childs.top());
-					childs.pop();
+				if (!threads.empty()) {
+					stopThread(threads.top());
+					threads.pop();
 				} else {
 					cout << "What is dead may never die" << endl;
 				}
@@ -45,9 +45,9 @@ int main(int argc, char** argv) {
 			break;
 		case 'q':
 			isExit = true;
-			while (!childs.empty()) {
-				stopThread(childs.top());
-				childs.pop();
+			while (!threads.empty()) {
+				stopThread(threads.top());
+				threads.pop();
 			}
 			break;
 		}
